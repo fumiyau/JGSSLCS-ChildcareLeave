@@ -1,4 +1,4 @@
-# JGSSLCSPatLeave
+# JGSSLCS-ChildcareLeave
 Replication files for my publication on parental leave (Childcare Leave Use among Japanese Women and Its Long-termEffect on Occupational Careers)
 
 There are 6 do files (+master fofile) to run the replication. 
