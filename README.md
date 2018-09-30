@@ -15,3 +15,5 @@ Link to raw data is here: http://jgss.daishodai.ac.jp/english/index.html
 Link to the article is here: http://jgss.daishodai.ac.jp/research/monographs/jgssm17/jgssm17_03.pdf
 This study used JGSS-2009LCS (Japanese General Social Survey-2009 Life Course Survey, a vearsion in January 2016), and now version 3.0 is available.
 I used sav file as raw data and converted it to dta format.
+
+I thank Ryota Mugiyama, Ryohei Mogi, Yuki Hayashikawa, and Toshifumi Yoshida for their advices on this paper and sharing codes for creating the variables.
