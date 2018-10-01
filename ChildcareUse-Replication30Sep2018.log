@@ -1,0 +1,2479 @@
+--------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/ChildcareUse-Replication30Sep2018.log
+  log type:  text
+ opened on:  30 Sep 2018, 23:21:18
+
+. *Creating the dateset
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/DataConst.do"
+
+. use "/Users/fumiyau/Desktop/JGSS_LCS_Submission/Data/JGSS_LCS.dta", clear
+
+. /*出生年は1966年から1980年*/
+. /* reshape用データ加工, Difine id, age, sex */
+. gen id=_n
+
+. gen age = ageb 
+
+. gen sex = sexa 
+
+. 
+. /* 職歴段数 */
+. /* 従業先番号:10以上は存在しない*/
+. /* 仕事開始年齢:1982年を基準とした月数で計算する。*/
+. /*入職月数が不明の場合4を代入する。*/
+. forvalues i=1/9{
+  2. rename job0`i' noj`i'
+  3. recode jb0`i'sty 8888=. 9999=.
+  4. recode jb0`i'stm 88=. 99=.
+  5. replace jb0`i'stm = 4 if jb0`i'sty ~=. & jb0`i'stm ==.
+  6. replace jb0`i'sty = (jb0`i'sty - 1982)*12
+  7. gen jobst`i' = jb0`i'sty + jb0`i'stm
+  8. }
+(jb01sty: 3 changes made)
+(jb01stm: 19 changes made)
+(16 real changes made)
+(2,724 real changes made, 36 to missing)
+(39 missing values generated)
+(jb02sty: 11 changes made)
+(jb02stm: 39 changes made)
+(28 real changes made)
+(2,716 real changes made, 960 to missing)
+(971 missing values generated)
+(jb03sty: 12 changes made)
+(jb03stm: 36 changes made)
+(24 real changes made)
+(2,715 real changes made, 1,666 to missing)
+(1,678 missing values generated)
+(jb04sty: 6 changes made)
+(jb04stm: 21 changes made)
+(15 real changes made)
+(2,721 real changes made, 2,197 to missing)
+(2,203 missing values generated)
+(jb05sty: 3 changes made)
+(jb05stm: 5 changes made)
+(2 real changes made)
+(2,724 real changes made, 2,485 to missing)
+(2,488 missing values generated)
+(jb06sty: 2 changes made)
+(jb06stm: 3 changes made)
+(1 real change made)
+(2,725 real changes made, 2,620 to missing)
+(2,622 missing values generated)
+(jb07sty: 4 changes made)
+(jb07stm: 4 changes made)
+(0 real changes made)
+(2,723 real changes made, 2,691 to missing)
+(2,695 missing values generated)
+(jb08sty: 0 changes made)
+(jb08stm: 0 changes made)
+(0 real changes made)
+(2,727 real changes made, 2,716 to missing)
+(2,716 missing values generated)
+(jb09sty: 0 changes made)
+(jb09stm: 0 changes made)
+(0 real changes made)
+(2,727 real changes made, 2,721 to missing)
+(2,721 missing values generated)
+
+. 
+. gen beginjob = jobst1
+(39 missing values generated)
+
+. 
+. gen begin16 = (dobyear+16-1982)*12
+
+. recode spagex 999=.
+(spagex: 27 changes made)
+
+. replace begin16=(2009-spagex+16-1982)*12 if sex == 1
+(1,112 real changes made, 444 to missing)
+
+. 
+. /* 仕事終了年齢 */
+. /*離職月数が不明の場合3を代入する。*/
+. /*仕事継続している場合は326ヶ月目でやめたという構成*/
+. forvalues i=1/9{
+  2. recode jb0`i'eny 8888=. 9999=.
+  3. recode jb0`i'enm 88=. 99=.
+  4. replace jb0`i'enm = 3 if jb0`i'eny ~=. & jb0`i'enm ==.
+  5. replace jb0`i'eny = (jb0`i'eny - 1982)*12
+  6. gen joben`i' = jb0`i'eny + jb0`i'enm
+  7. replace joben`i' = 326 if jb0`i'ong == 2
+  8. }
+(jb01eny: 10 changes made)
+(jb01enm: 45 changes made)
+(35 real changes made)
+(2,717 real changes made, 759 to missing)
+(769 missing values generated)
+(722 real changes made)
+(jb02eny: 10 changes made)
+(jb02enm: 37 changes made)
+(27 real changes made)
+(2,717 real changes made, 1,522 to missing)
+(1,532 missing values generated)
+(562 real changes made)
+(jb03eny: 6 changes made)
+(jb03enm: 22 changes made)
+(16 real changes made)
+(2,721 real changes made, 2,092 to missing)
+(2,098 missing values generated)
+(426 real changes made)
+(jb04eny: 5 changes made)
+(jb04enm: 10 changes made)
+(5 real changes made)
+(2,722 real changes made, 2,434 to missing)
+(2,439 missing values generated)
+(237 real changes made)
+(jb05eny: 4 changes made)
+(jb05enm: 6 changes made)
+(2 real changes made)
+(2,723 real changes made, 2,591 to missing)
+(2,595 missing values generated)
+(106 real changes made)
+(jb06eny: 2 changes made)
+(jb06enm: 2 changes made)
+(0 real changes made)
+(2,725 real changes made, 2,669 to missing)
+(2,671 missing values generated)
+(49 real changes made)
+(jb07eny: 1 changes made)
+(jb07enm: 1 changes made)
+(0 real changes made)
+(2,726 real changes made, 2,715 to missing)
+(2,716 missing values generated)
+(24 real changes made)
+(jb08eny: 0 changes made)
+(jb08enm: 0 changes made)
+(0 real changes made)
+(2,727 real changes made, 2,720 to missing)
+(2,720 missing values generated)
+(4 real changes made)
+(jb09eny: 0 changes made)
+(jb09enm: 0 changes made)
+(0 real changes made)
+(2,727 real changes made, 2,721 to missing)
+(2,721 missing values generated)
+(0 real changes made)
+
+. drop if joben1 ==. 
+(47 observations deleted)
+
+. 
+. /*子供出生年：同じく1982年を基準とした月数に換算*/
+. forvalues i=1/5{
+  2. rename cc0`i'byr cby`i'
+  3. recode cby`i' 8888=. 9999=.
+  4. replace cby`i' = (cby`i'-1982)*12
+  5. rename cc0`i'bm cbm`i'
+  6. recode cbm`i' 88=. 99=.
+  7. gen cbirth`i' = cby`i' + cbm`i'
+  8. }
+(cby1: 19 changes made)
+(2,661 real changes made, 939 to missing)
+(cbm1: 51 changes made)
+(990 missing values generated)
+(cby2: 16 changes made)
+(2,664 real changes made, 1,449 to missing)
+(cbm2: 40 changes made)
+(1,489 missing values generated)
+(cby3: 5 changes made)
+(2,675 real changes made, 2,293 to missing)
+(cbm3: 12 changes made)
+(2,305 missing values generated)
+(cby4: 0 changes made)
+(2,680 real changes made, 2,629 to missing)
+(cbm4: 5 changes made)
+(2,634 missing values generated)
+(cby5: 0 changes made)
+(2,680 real changes made, 2,672 to missing)
+(cbm5: 1 changes made)
+(2,673 missing values generated)
+
+. 
+. /* 10回以上転職は削除 */
+. drop if job10wpl ~= .a
+(6 observations deleted)
+
+. 
+. /* 事業内容/従業員数 */
+. forvalues i=1/9{
+  2. rename job0`i'wpl wpl`i'
+  3. rename job0`i'sz sz`i'
+  4. recode sz`i' 99=.
+  5. }
+(sz1: 19 changes made)
+(sz2: 21 changes made)
+(sz3: 16 changes made)
+(sz4: 9 changes made)
+(sz5: 4 changes made)
+(sz6: 2 changes made)
+(sz7: 0 changes made)
+(sz8: 0 changes made)
+(sz9: 0 changes made)
+
+. 
+. /* 結婚先番号 */
+. rename mrg0* mrg*
+
+. /* 結婚開始年齢 */
+. forvalues i=1/2{
+  2. recode mrg`i'sty 8888=. 9999=.
+  3. recode mrg`i'stm 88=. 99=.
+  4. replace mrg`i'sty = (mrg`i'sty - 1982)*12
+  5. gen mrgst`i' = mrg`i'sty + mrg`i'stm
+  6. recode mrg`i'eny 8888=. 9999=.
+  7. recode mrg`i'enm 88=. 99=.
+  8. replace mrg`i'eny = (mrg`i'eny - 1982)*12
+  9. gen mrgen`i' = mrg`i'eny + mrg`i'enm
+ 10. }
+(mrg1sty: 19 changes made)
+(mrg1stm: 29 changes made)
+(2,655 real changes made, 671 to missing)
+(700 missing values generated)
+(mrg1eny: 11 changes made)
+(mrg1enm: 18 changes made)
+(2,663 real changes made, 2,526 to missing)
+(2,544 missing values generated)
+(mrg2sty: 0 changes made)
+(mrg2stm: 0 changes made)
+(2,674 real changes made, 2,639 to missing)
+(2,639 missing values generated)
+(mrg2eny: 0 changes made)
+(mrg2enm: 0 changes made)
+(2,674 real changes made, 2,669 to missing)
+(2,669 missing values generated)
+
+. gen pastdiv = mrg2
+(671 missing values generated)
+
+. recode pastdiv 2=0
+(pastdiv: 1968 changes made)
+
+. 
+. /*初婚が婚前妊娠*/
+. gen bripreg=0
+
+. recode bripreg 0=. if ccnumttl==0 | ccnumttl==.
+(bripreg: 934 changes made)
+
+. recode bripreg 0=1 if cbirth1< mrgst1+9 & mrgst1~=. & cbirth1~=.
+(bripreg: 478 changes made)
+
+. /*1ケースしかいないが再婚後の婚前妊娠もカウントするかも*/
+. /*recode bripreg 0=1 if cbirth1 < mrgst2+9 & cbirth1 > mrgen1 & mrgst2~=. & cbirth1~=. & mrgen1 ~=.*/
+. 
+. gen ccnum1 = ccnumttl
+
+. recode ccnum1 1/7=1
+(ccnum1: 1231 changes made)
+
+. 
+. gen ccnum2 = ccnumttl
+
+. recode ccnum2 0/1=0 2/7=1
+(ccnum2: 1740 changes made)
+
+. 
+. gen ccnum3 = ccnumttl
+
+. recode ccnum3 0/2=0 3/7=1
+(ccnum3: 1740 changes made)
+
+. 
+. 
+. /* 学歴（1中学卒 2高校卒 3その他（専門など）4短大卒  5大学以上*/
+. gen redu = 0
+
+. recode redu 0=1 if schtpno == 1
+(redu: 48 changes made)
+
+. recode redu 0=2 if schtphs == 1 & schtpvs == 0 & schtpunv == 0 & schtpot == 0 & schtpgs == 0 & schtpct
+>  == 0 & schtp2yc == 0 & schtpno == 0
+(redu: 986 changes made)
+
+. recode redu 0=4 if schtphs == 1 & schtpvs == 0 & schtpunv == 0 & schtpot == 0 & schtpgs == 0 & schtpct
+>  == 0 & schtp2yc == 1 & schtpno == 0
+(redu: 331 changes made)
+
+. recode redu 0=5 if schtphs == 1 & schtpunv == 1 & schtpgs == 0 & schtpno == 0
+(redu: 710 changes made)
+
+. recode redu 0=5 if schtphs == 1 & schtpunv == 1 & schtpgs == 1 & schtpno == 0
+(redu: 61 changes made)
+
+. recode redu 0=3
+(redu: 538 changes made)
+
+. 
+. /*配偶者学歴（1中学卒 2高校卒 3その他（専門など）4短大卒  5大学以上*/
+. gen spedu = 0
+
+. replace spedu = 3 if pspsch == 1
+(334 real changes made)
+
+. replace spedu = sslstsch if spedu == 0
+(2,340 real changes made, 790 to missing)
+
+. recode spedu 6=5 
+(spedu: 50 changes made)
+
+. recode spedu 7/9=.
+(spedu: 14 changes made)
+
+. drop if redu==.
+(0 observations deleted)
+
+. drop if spedu==.
+(14 observations deleted)
+
+. recode redu spedu (1/2=1)(3/4=2)(5=3)
+(redu: 2612 changes made)
+(spedu: 1826 changes made)
+
+. 
+. gen marriage = domarry
+
+. recode marriage 5=1 6=2 3=2 4=3
+(marriage: 680 changes made)
+
+. 
+. gen nowdiv=marriage
+
+. recode nowdiv 1=0 3=0 2=1
+(nowdiv: 2660 changes made)
+
+. 
+. gen cnum=ccnumttl
+
+. recode cnum (4/7=4)
+(cnum: 8 changes made)
+
+. 
+. drop if marriage == 3
+(671 observations deleted)
+
+. 
+. 
+. /*職種（職業→SSM8分類）*/
+. /* SSM 8 classification (including no-job) */
+. /* 1"専門" 2"管理" 3"事務" 4"販売" 5"熟練" 6"半熟練" 7"非熟練" 8"農林" 9"無職"*/
+. /*追加コードの分類について
+> 701"スーパーなどのレジスター係員、キャッシャー" = 4
+> 702"大工" = 5
+> 703"教員" = 2
+> 704"製品製造作業者（製品不明）" = 7
+> 705"会社員" = .
+> 706"宅配便の配達" = 8
+> 707"自営業" = .
+> 801"ヘルパー" = 4
+> 802"その他の医療・福祉サービス職従事者" = 4
+> 803"雇われている販売店長" = 4
+> 804"雇われている飲食店長" = 4
+> */
+. /*下から2つめの行は150712class_analysis.doから取ってきた*/
+. /*従業上の地位（雇用形態）*/
+. /*職業威信スコアSSM1995年版*/
+. forvalues i=1/9{
+  2. gen jobssm`i' = jb0`i's0oc 
+  3. recode jobssm`i' (501/544 = 1)(609/610 = 1)(615 = 1)(703 = 1) (545/553 = 2)(608 = 2)(554/565 = 3)(5
+> 86 = 3)(590 = 3)(593/598 = 3)(616/619 = 3)(701 = 3) (566/577 = 4)(582/585 = 4)(587/589 = 4) (579 = 5)(
+> 581 = 5)(623/624 = 5)(626 = 5)(628 = 5)(631 = 5)(633 = 5)(635/644 = 5)(647 = 5)(651 = 5)(654/656 = 5)(
+> 658 = 5)(660/666= 5)(668 = 5)(670/675 = 5)(677/681 = 5)(684 = 5)(702 = 5) (580 = 6)(606/607 = 6)(611/6
+> 14 = 6)(625 = 6)(627 = 6)(629/630 = 6)(632 = 6)(634 = 6)(645/646 = 6)(648/650 = 6)(652/653 = 6)(657 = 
+> 6)(659 = 6)(667 = 6)(669 = 6)(672 = 6)(676 = 6)(704 = 6)(706=6) (578 = 7)(591/592 = 7)(620/622 = 7)(68
+> 2/683 = 7)(685/688 = 7)(599/605 = 8)(998 =9)(689 =.)(987 =.)(999 =.)(988=.)(701 = 4)(702 = 5)(703 = 2)
+> (704 = 7)(705 =.)(706 = 8)(707 =.)(801 = 4)(802 = 4)(803 = 4)(804 = 4)
+  4. rename jb0`i's0tp type`i'
+  5. recode type`i' (8=.) (99=.) 
+  6. gen jobpres`i' = jb0`i's0oc 
+  7. }
+(jobssm1: 1989 changes made)
+(type1: 11 changes made)
+(673 missing values generated)
+(jobssm2: 1316 changes made)
+(type2: 9 changes made)
+(673 missing values generated)
+(1,209 missing values generated)
+(jobssm3: 780 changes made)
+(type3: 7 changes made)
+(1,209 missing values generated)
+(1,615 missing values generated)
+(jobssm4: 374 changes made)
+(type4: 6 changes made)
+(1,615 missing values generated)
+(1,824 missing values generated)
+(jobssm5: 165 changes made)
+(type5: 3 changes made)
+(1,824 missing values generated)
+(1,916 missing values generated)
+(jobssm6: 73 changes made)
+(type6: 1 changes made)
+(1,916 missing values generated)
+(1,968 missing values generated)
+(jobssm7: 21 changes made)
+(type7: 0 changes made)
+(1,968 missing values generated)
+(1,986 missing values generated)
+(jobssm8: 3 changes made)
+(type8: 0 changes made)
+(1,986 missing values generated)
+(1,989 missing values generated)
+(jobssm9: 0 changes made)
+(type9: 0 changes made)
+(1,989 missing values generated)
+
+. 
+. /*出生コーホート*/
+. gen cohort = dobyear
+
+. recode cohort 1966/1970 = 1 1971/1975=2 1976/1980=3
+(cohort: 1989 changes made)
+
+. 
+. /*親との同居期間*/
+. recode plv01jh 8=. 9=.
+(plv01jh: 8 changes made)
+
+. forvalues i=1/4{
+  2. recode plv0`i'sty 8888=. 9999=.
+  3. recode plv0`i'eny 8888=. 9999=.
+  4. recode plv0`i'stm 88=. 99=.
+  5. recode plv0`i'enm 88=. 99=.
+  6. gen plsty`i' = plv0`i'sty
+  7. }
+(plv01sty: 1 changes made)
+(plv01eny: 4 changes made)
+(plv01stm: 1 changes made)
+(plv01enm: 35 changes made)
+(1,935 missing values generated)
+(plv02sty: 12 changes made)
+(plv02eny: 1 changes made)
+(plv02stm: 18 changes made)
+(plv02enm: 7 changes made)
+(1,694 missing values generated)
+(plv03sty: 0 changes made)
+(plv03eny: 0 changes made)
+(plv03stm: 0 changes made)
+(plv03enm: 0 changes made)
+(1,969 missing values generated)
+(plv04sty: 0 changes made)
+(plv04eny: 0 changes made)
+(plv04stm: 0 changes made)
+(plv04enm: 0 changes made)
+(1,989 missing values generated)
+
+. 
+. /*1966年生まれで15歳以前に離家している人はマイナスになる*/
+. replace plsty1 = (((2009 - age) + 15)-1982)*12 if plv01jh == 2
+(1,880 real changes made)
+
+. replace plsty1 = (plv01sty-1982)*12 if plv01jh == 1
+(54 real changes made)
+
+. replace plsty2 = (plv02sty-1982)*12
+(1,977 real changes made, 1,682 to missing)
+
+. replace plsty3 = (plv03sty-1982)*12
+(1,989 real changes made, 1,969 to missing)
+
+. replace plsty4 = (plv04sty-1982)*12
+(1,989 real changes made, 1,989 to missing)
+
+. 
+. forvalues i=1/4{
+  2. gen pleny`i' = plv0`i'eny
+  3. replace pleny`i' = (plv0`i'eny-1982)*12 
+  4. recode plv0`i'ong 8=. 9=.
+  5. replace pleny`i' = 326 if plv0`i'ong == 2
+  6. }
+(217 missing values generated)
+(1,985 real changes made, 213 to missing)
+(plv01ong: 16 changes made)
+(151 real changes made)
+(1,809 missing values generated)
+(1,988 real changes made, 1,808 to missing)
+(plv02ong: 3 changes made)
+(123 real changes made)
+(1,984 missing values generated)
+(1,989 real changes made, 1,984 to missing)
+(plv03ong: 0 changes made)
+(15 real changes made)
+(1,989 missing values generated)
+(1,989 real changes made, 1,989 to missing)
+(plv04ong: 0 changes made)
+(0 real changes made)
+
+. 
+. /*出生年コホート*/
+. forvalues i=1/3{
+  2. gen bch`i' = (cby`i'/12)+1982
+  3. recode bch`i' 1986/1991=1 1992/1994=2 1995/2001=3 2002/2004=4 2005/2009=5
+  4. }
+(281 missing values generated)
+(bch1: 1708 changes made)
+(780 missing values generated)
+(bch2: 1209 changes made)
+(1,608 missing values generated)
+(bch3: 381 changes made)
+
+. 
+. /*変数削除*/
+. drop psncns cnsdbcar cnsdbmcy cnsdbftv cnsdbdry cnsdbstk cnsdbno exrsmeal exrshous exrsutl exrsclth ex
+> rscomm exrsmed exrsedu exrsent exrsot exrsno exwtfood exwthous exwtappl exwtcar exwtfshn exwtlssn exwt
+> frd exwttrav exwtsprt exwtsmc exwthk exwtedu exwtpet exwtot exwtno jhclbphy jhclbcul
+
+. drop cndflx cndsmpr cndsmamt cndsmhdy cndjnt cndunrst cndins cndspt cndknlg cndtrn cndrep cndabl cndef
+> t cndacmp cndwrth cndblc cowkamt cowkidea cowkspt skscdoc sksceng sksccoop skscintv skscvers sksclead 
+> skscmnnr  skscrcpt skscchrc skscsoc sksclaw skscrght skscno skwkdoc skwkeng skwkcoop skwkintv skwkvers
+>  skwklead skwkmnnr skwkrcpt skwkchrc skwksoc skwklaw skwkrght skwkno skwknw skwtdoc skwteng skwtcoop s
+> kwtintv skwtvers  skwtlead skwtmnnr skwtrcpt skwtchrc skwtsoc skwtlaw skwtrght skwtno tmalwk tmalhby t
+> malfam tmalhw
+
+. drop hrtv fq5read fq5comic docompj docompp dophs dononex doinbrs doinshop doinbank doinhpb doinpic doi
+> nbbs doincs doinnone fq6email netfrnd comabprg comabset comabins comabgr comabdoc comabno opplnet menh
+> lnrv menhlclm menhldp menhlpls menhldwn xtraum5y st5areay st5leisy st5lifey st5ecny st5friy st5hlthy s
+> t5ssrel op5happz arbptjb xworkl
+
+. drop tpjob tpjobp tpjsfam tpjsfrd tpjswk tpjsrec tpjsoff tpjsweb tpjsad tpjspub tpjsprv tpjspt tpjsfb 
+> tpjsnew tpjsot tpjsdk tpjsapot
+
+. drop jb01sjno jb01sjdp jb01sjpt jb01sjfb jb01sjot jb02sjno jb02sjdp jb02sjpt jb02sjfb jb02sjot jb03sjn
+> o jb03sjdp jb03sjpt jb03sjfb jb03sjot jb04sjno jb04sjdp jb04sjpt jb04sjfb jb04sjot jb05sjno jb05sjdp j
+> b05sjpt  jb05sjfb jb05sjot jb06sjno jb06sjdp jb06sjpt jb06sjfb jb06sjot jb07sjno jb07sjdp jb07sjpt jb0
+> 7sjfb jb07sjot jb08sjno jb08sjdp jb08sjpt jb08sjfb jb08sjot jb09sjno jb09sjdp jb09sjpt jb09sjfb jb09sj
+> ot jb10sjno jb10sjdp jb10sjpt jb10sjfb jb10sjot jb11sjno jb11sjdp jb11sjpt jb11sjfb jb11sjot jb12sjno 
+> jb12sjdp jb12sjpt jb12sjfb jb12sjot jb13sjno jb13sjdp jb13sjpt jb13sjfb jb13sjot jb14sjno jb14sjdp jb1
+> 4sjpt jb14sjfb jb14sjot jb15sjno jb15sjdp jb15sjpt jb15sjfb jb15sjot jb16sjno jb16sjdp jb16sjpt jb16sj
+> fb jb16sjot jb17sjno jb17sjdp jb17sjpt jb17sjfb jb17sjot jb18sjno jb18sjdp jb18sjpt jb18sjfb jb18sjot 
+> jb19sjno jb19sjdp jb19sjpt jb19sjfb jb19sjot jb20sjno jb20sjdp jb20sjpt jb20sjfb jb20sjot
+
+. drop jb10sty jb10stm jb10ong jb10eny jb10enm jb11sty jb11stm jb11ong jb11eny jb11enm jb12sty jb12stm j
+> b12ong jb12eny jb12enm jb13sty jb13stm jb13ong jb13eny jb13enm jb14sty jb14stm jb14ong jb14eny jb14enm
+>  jb15sty jb15stm jb15ong jb15eny jb15enm jb16sty jb16stm jb16ong jb16eny jb16enm jb17sty jb17stm jb17o
+> ng jb17eny jb17enm jb18sty jb18stm jb18ong jb18eny jb18enm jb19sty jb19stm jb19ong jb19eny jb19enm jb1
+> 0s0tp jb10s0tl jb10s0oc jb10s1 jb10s1tp jb10s1tl jb10s1oc jb10s1y jb10s1m jb10s2 jb10s2tp jb10s2tl jb1
+> 0s2oc jb10s2y jb10s2m jb10s3 jb10s3tp jb10s3tl jb10s3oc jb10s3y jb10s3m jb10s4 jb10s4tp jb10s4tl jb10s
+> 4oc jb10s4y jb10s4m jb11s0tp jb11s0tl jb11s0oc jb11s1 jb11s1tp jb11s1tl jb11s1oc jb11s1y jb11s1m jb11s
+> 2 jb11s2tp jb11s2tl jb11s2oc jb11s2y jb11s2m jb11s3 jb11s3tp jb11s3tl jb11s3oc jb11s3y jb11s3m jb11s4 
+> jb11s4tp jb11s4tl jb11s4oc jb11s4y jb11s4m jb12s0tp jb12s0tl jb12s0oc jb12s1 jb12s1tp jb12s1tl jb12s1o
+> c jb12s1y jb12s1m jb12s2 jb12s2tp jb12s2tl jb12s2oc jb12s2y jb12s2m jb12s3 jb12s3tp jb12s3tl jb12s3oc 
+> jb12s3y jb12s3m jb12s4 jb12s4tp jb12s4tl jb12s4oc jb12s4y jb12s4m jb13s0tp jb13s0tl jb13s0oc jb13s1 jb
+> 13s1tp jb13s1tl jb13s1oc jb13s1y jb13s1m jb13s2 jb13s2tp jb13s2tl jb13s2oc jb13s2y jb13s2m jb13s3 jb13
+> s3tp jb13s3tl jb13s3oc jb13s3y jb13s3m jb13s4 jb13s4tp jb13s4tl jb13s4oc jb13s4y jb13s4m jb14s0tp jb14
+> s0tl jb14s0oc jb14s1 jb14s1tp jb14s1tl jb14s1oc jb14s1y jb14s1m jb14s2 jb14s2tp jb14s2tl jb14s2oc jb14
+> s2y jb14s2m jb14s3 jb14s3tp jb14s3tl jb14s3oc jb14s3y jb14s3m jb14s4 jb14s4tp jb14s4tl jb14s4oc jb14s4
+> y jb14s4m jb15s0tp jb15s0tl jb15s0oc jb15s1 jb15s1tp jb15s1tl jb15s1oc jb15s1y jb15s1m jb15s2 jb15s2tp
+>  jb15s2tl jb15s2oc jb15s2y jb15s2m jb15s3 jb15s3tp jb15s3tl jb15s3oc jb15s3y jb15s3m jb15s4 jb15s4tp j
+> b15s4tl jb15s4oc jb15s4y jb15s4m jb16s0tp jb16s0tl jb16s0oc jb16s1 jb16s1tp jb16s1tl jb16s1oc jb16s1y 
+> jb16s1m jb16s2 jb16s2tp jb16s2tl jb16s2oc jb16s2y jb16s2m jb16s3 jb16s3tp jb16s3tl jb16s3oc jb16s3y jb
+> 16s3m jb16s4 jb16s4tp jb16s4tl jb16s4oc jb16s4y jb16s4m jb17s0tp jb17s0tl jb17s0oc jb17s1 jb17s1tp jb1
+> 7s1tl jb17s1oc jb17s1y jb17s1m jb17s2 jb17s2tp jb17s2tl jb17s2oc jb17s2y jb17s2m jb17s3 jb17s3tp jb17s
+> 3tl jb17s3oc jb17s3y jb17s3m jb17s4 jb17s4tp jb17s4tl jb17s4oc jb17s4y jb17s4m jb18s0tp jb18s0tl jb18s
+> 0oc jb18s1 jb18s1tp jb18s1tl jb18s1oc jb18s1y jb18s1m jb18s2 jb18s2tp jb18s2tl jb18s2oc jb18s2y jb18s2
+> m jb18s3 jb18s3tp jb18s3tl jb18s3oc jb18s3y jb18s3m jb18s4 jb18s4tp jb18s4tl jb18s4oc jb18s4y jb18s4m 
+> jb19s0tp jb19s0tl jb19s0oc jb19s1 jb19s1tp jb19s1tl jb19s1oc jb19s1y jb19s1m jb19s2 jb19s2tp jb19s2tl 
+> jb19s2oc jb19s2y jb19s2m jb19s3 jb19s3tp jb19s3tl jb19s3oc jb19s3y jb19s3m jb19s4 jb19s4tp jb19s4tl jb
+> 19s4oc jb19s4y jb19s4m 
+
+. 
+. /***lengthを使ってパーソンピリオドの作成***/
+. /*drop if id == 736*/
+. /* 定職ダミー1（辞めた月から無職と考える）*/
+. /* 初職開始月数から計算 501,975レコードの作成*/
+. gen tf = 326 - begin16 + 1
+(42 missing values generated)
+
+. expand tf
+(42 missing counts ignored; observations not deleted)
+(477,714 observations created)
+
+. sort id 
+
+. by id: gen length = begin16 + _n - 1
+(42 missing values generated)
+
+. sort iduse
+
+. by iduse: egen maxlength = max(length)
+(42 missing values generated)
+
+. 
+. gen jobstst = 1
+
+. recode jobstst 1 =0 if length >= joben1 & jobst2 > length  & joben1 ~= jobst2 & joben1 ~=. & jobst2 ~=
+> .
+(jobstst: 26100 changes made)
+
+. recode jobstst 1 =0 if length >= joben2 & jobst3 > length  & joben2 ~= jobst3 & joben2 ~=. & jobst3 ~=
+> .
+(jobstst: 13372 changes made)
+
+. recode jobstst 1 =0 if length >= joben3 & jobst4 > length  & joben3 ~= jobst4 & joben3 ~=. & jobst4 ~=
+> .
+(jobstst: 4775 changes made)
+
+. recode jobstst 1 =0 if length >= joben4 & jobst5 > length  & joben4 ~= jobst5 & joben4 ~=. & jobst5 ~=
+> .
+(jobstst: 1584 changes made)
+
+. recode jobstst 1 =0 if length >= joben5 & jobst6 > length  & joben5 ~= jobst6 & joben5 ~=. & jobst6 ~=
+> .
+(jobstst: 525 changes made)
+
+. recode jobstst 1 =0 if length >= joben6 & jobst7 > length  & joben6 ~= jobst7 & joben6 ~=. & jobst7 ~=
+> .
+(jobstst: 179 changes made)
+
+. recode jobstst 1 =0 if length >= joben7 & jobst8 > length  & joben7 ~= jobst8 & joben7 ~=. & jobst8 ~=
+> .
+(jobstst: 2 changes made)
+
+. recode jobstst 1 =0 if length >= joben8 & jobst9 > length  & joben8 ~= jobst9 & joben8 ~=. & jobst9 ~=
+> .
+(jobstst: 0 changes made)
+
+.  
+. /* 定職ダミー2（辞めた月の一ヶ月後から無職と考える）→こちらを基本的に採用する*/
+. gen jobstst2 = 0
+
+. recode jobstst2 0=1 if jobst1 <= length & length <= joben1 & joben1 ~=. & jobst1 ~=. 
+(jobstst2: 158099 changes made)
+
+. recode jobstst2 0=1 if jobst2 <= length & length <= joben2 & joben2 ~=. & jobst2 ~=.
+(jobstst2: 70429 changes made)
+
+. recode jobstst2 0=1 if jobst3 <= length & length <= joben3 & joben3 ~=. & jobst3 ~=.
+(jobstst2: 37183 changes made)
+
+. recode jobstst2 0=1 if jobst4 <= length & length <= joben4 & joben4 ~=. & jobst4 ~=.
+(jobstst2: 16138 changes made)
+
+. recode jobstst2 0=1 if jobst5 <= length & length <= joben5 & joben5 ~=. & jobst5 ~=.
+(jobstst2: 6363 changes made)
+
+. recode jobstst2 0=1 if jobst6 <= length & length <= joben6 & joben6 ~=. & jobst6 ~=.
+(jobstst2: 2327 changes made)
+
+. recode jobstst2 0=1 if jobst7 <= length & length <= joben7 & joben7 ~=. & jobst7 ~=.
+(jobstst2: 652 changes made)
+
+. recode jobstst2 0=1 if jobst8 <= length & length <= joben8 & joben8 ~=. & jobst8 ~=.
+(jobstst2: 62 changes made)
+
+. recode jobstst2 0=1 if jobst9 <= length & length <= joben9 & joben9 ~=. & jobst9 ~=.
+(jobstst2: 0 changes made)
+
+. 
+. gen pld = 0
+
+. recode pld 0=1 if plsty1 <= length & length <= pleny1 & plsty1 ~=. & pleny1 ~=.
+(pld: 174354 changes made)
+
+. recode pld 0=1 if plsty2 <= length & length <= pleny2 & plsty1 ~=. & pleny1 ~=.
+(pld: 20400 changes made)
+
+. recode pld 0=1 if plsty3 <= length & length <= pleny3 & plsty1 ~=. & pleny1 ~=.
+(pld: 1467 changes made)
+
+. recode pld 0=1 if plsty4 <= length & length <= pleny4 & plsty1 ~=. & pleny1 ~=.
+(pld: 0 changes made)
+
+.  
+. /*在職期間*/
+. bysort id: gen tenure1 = length - jobst1 + 1 if jobstst2 == 1 & joben1 >= length & jobst1 <= length & 
+> joben1 ~=. & jobst1 ~=. 
+(321,604 missing values generated)
+
+. bysort id: gen tenure2 = length - jobst2  if jobstst2 == 1 & joben2 >= length & jobst2 < length & jobe
+> n2 ~=. & jobst2 ~=. 
+(410,281 missing values generated)
+
+. bysort id: gen tenure3 = length - jobst3  if jobstst2 == 1 & joben3 >= length & jobst3 < length & jobe
+> n3 ~=. & jobst3 ~=. 
+(443,040 missing values generated)
+
+. bysort id: gen tenure4 = length - jobst4  if jobstst2 == 1 & joben4 >= length & jobst4 < length & jobe
+> n4 ~=. & jobst4 ~=. 
+(463,869 missing values generated)
+
+. bysort id: gen tenure5 = length - jobst5  if jobstst2 == 1 & joben5 >= length & jobst5 < length & jobe
+> n5 ~=. & jobst5 ~=. 
+(473,474 missing values generated)
+
+. bysort id: gen tenure6 = length - jobst6  if jobstst2 == 1 & joben6 >= length & jobst6 < length & jobe
+> n6 ~=. & jobst6 ~=. 
+(477,436 missing values generated)
+
+. bysort id: gen tenure7 = length - jobst7  if jobstst2 == 1 & joben7 >= length & jobst7 < length & jobe
+> n7 ~=. & jobst7 ~=. 
+(479,068 missing values generated)
+
+. bysort id: gen tenure8 = length - jobst8  if jobstst2 == 1 & joben8 >= length & jobst8 < length & jobe
+> n8 ~=. & jobst8 ~=. 
+(479,643 missing values generated)
+
+. bysort id: gen tenure9 = length - jobst9  if jobstst2 == 1 & joben9 >= length & jobst9 < length & jobe
+> n9 ~=. & jobst9 ~=. 
+(479,703 missing values generated)
+
+. 
+. gen tenure = .
+(479,703 missing values generated)
+
+. replace tenure = tenure1 if jobstst2 == 1 & joben1 >= length & jobst1 <= length & joben1 ~=. & jobst1 
+> ~=.  
+(158,099 real changes made)
+
+. replace tenure = tenure2 if jobstst2 == 1 & joben2 >= length & jobst2 < length  & joben2 ~=. & jobst2 
+> ~=. 
+(69,422 real changes made)
+
+. replace tenure = tenure3 if jobstst2 == 1 & joben3 >= length & jobst3 < length  & joben3 ~=. & jobst3 
+> ~=. 
+(36,663 real changes made)
+
+. replace tenure = tenure4 if jobstst2 == 1 & joben4 >= length & jobst4 < length  & joben4 ~=. & jobst4 
+> ~=. 
+(15,834 real changes made)
+
+. replace tenure = tenure5 if jobstst2 == 1 & joben5 >= length & jobst5 < length  & joben5 ~=. & jobst5 
+> ~=. 
+(6,229 real changes made)
+
+. replace tenure = tenure6 if jobstst2 == 1 & joben6 >= length & jobst6 < length  & joben6 ~=. & jobst6 
+> ~=. 
+(2,267 real changes made)
+
+. replace tenure = tenure7 if jobstst2 == 1 & joben7 >= length & jobst7 < length  & joben7 ~=. & jobst7 
+> ~=. 
+(635 real changes made)
+
+. replace tenure = tenure8 if jobstst2 == 1 & joben8 >= length & jobst8 < length  & joben8 ~=. & jobst8 
+> ~=. 
+(60 real changes made)
+
+. replace tenure = tenure9 if jobstst2 == 1 & joben9 >= length & jobst9 < length  & joben9 ~=. & jobst9 
+> ~=. 
+(0 real changes made)
+
+.  
+. /*在職期間カテゴリ（1 1年以内 2 2-3年以内 3 4-5年以内 4 6-10年以内 5 11年以上）*/
+. gen tencat = tenure 
+(190,768 missing values generated)
+
+. recode tencat 1/12=1 13/36=2 37/60 = 3 61/120=4 121/311=5
+(tencat: 284512 changes made)
+
+. recode tencat .=1
+(tencat: 190768 changes made)
+
+. 
+. /* 従業員数 */
+. gen szl = 0
+
+. replace szl = sz1 if jobstst2 == 1 & jobst1 <= length & length <= joben1 & joben1 ~=. & jobst1 ~=. 
+(158,099 real changes made, 946 to missing)
+
+. replace szl = sz2 if jobstst2 == 1 & jobst2 < length & length <= joben2 & joben2 ~=. & jobst2 ~=. 
+(69,422 real changes made, 462 to missing)
+
+. replace szl = sz3 if jobstst2 == 1 & jobst3 < length & length <= joben3 & joben3 ~=. & jobst3 ~=. 
+(36,570 real changes made, 456 to missing)
+
+. replace szl = sz4 if jobstst2 == 1 & jobst4 < length & length <= joben4 & joben4 ~=. & jobst4 ~=. 
+(15,834 real changes made, 170 to missing)
+
+. replace szl = sz5 if jobstst2 == 1 & jobst5 < length & length <= joben5 & joben5 ~=. & jobst5 ~=. 
+(6,229 real changes made, 21 to missing)
+
+. replace szl = sz6 if jobstst2 == 1 & jobst6 < length & length <= joben6 & joben6 ~=. & jobst6 ~=. 
+(2,267 real changes made, 54 to missing)
+
+. replace szl = sz7 if jobstst2 == 1 & jobst7 < length & length <= joben7 & joben7 ~=. & jobst7 ~=. 
+(635 real changes made)
+
+. replace szl = sz8 if jobstst2 == 1 & jobst8 < length & length <= joben8 & joben8 ~=. & jobst8 ~=. 
+(60 real changes made)
+
+. replace szl = sz9 if jobstst2 == 1 & jobst9 < length & length <= joben9 & joben9 ~=. & jobst9 ~=. 
+(0 real changes made)
+
+. 
+. /* 事業内容 */
+. gen wpllx = 0
+
+. replace wpllx = wpl1 if jobstst2 == 1 & jobst1 <= length & length <= joben1
+(158,099 real changes made)
+
+. replace wpllx = wpl2 if jobstst2 == 1 & jobst2 < length & length <= joben2
+(69,409 real changes made)
+
+. replace wpllx = wpl3 if jobstst2 == 1 & jobst3 < length & length <= joben3
+(36,524 real changes made)
+
+. replace wpllx = wpl4 if jobstst2 == 1 & jobst4 < length & length <= joben4
+(15,834 real changes made)
+
+. replace wpllx = wpl5 if jobstst2 == 1 & jobst5 < length & length <= joben5
+(6,229 real changes made)
+
+. replace wpllx = wpl6 if jobstst2 == 1 & jobst6 < length & length <= joben6
+(2,267 real changes made)
+
+. replace wpllx = wpl7 if jobstst2 == 1 & jobst7 < length & length <= joben7
+(635 real changes made)
+
+. replace wpllx = wpl8 if jobstst2 == 1 & jobst8 < length & length <= joben8
+(60 real changes made)
+
+. replace wpllx = wpl9 if jobstst2 == 1 & jobst9 < length & length <= joben9
+(0 real changes made)
+
+. 
+. gen wpll = 0
+
+. replace wpll = wpl1 if jobstst2 == 1 & jobst1 <= length & length <= joben1 & joben1 ~=. & jobst1 ~=. 
+(158,099 real changes made)
+
+. replace wpll = wpl2 if jobstst2 == 1 & jobst2 < length & length <= joben2 & joben2 ~=. & jobst2 ~=. 
+(69,355 real changes made)
+
+. replace wpll = wpl3 if jobstst2 == 1 & jobst3 < length & length <= joben3 & joben3 ~=. & jobst3 ~=. 
+(36,524 real changes made)
+
+. replace wpll = wpl4 if jobstst2 == 1 & jobst4 < length & length <= joben4 & joben4 ~=. & jobst4 ~=. 
+(15,834 real changes made)
+
+. replace wpll = wpl5 if jobstst2 == 1 & jobst5 < length & length <= joben5 & joben5 ~=. & jobst5 ~=. 
+(6,229 real changes made)
+
+. replace wpll = wpl6 if jobstst2 == 1 & jobst6 < length & length <= joben6 & joben6 ~=. & jobst6 ~=. 
+(2,267 real changes made)
+
+. replace wpll = wpl7 if jobstst2 == 1 & jobst7 < length & length <= joben7 & joben7 ~=. & jobst7 ~=. 
+(635 real changes made)
+
+. replace wpll = wpl8 if jobstst2 == 1 & jobst8 < length & length <= joben8 & joben8 ~=. & jobst8 ~=. 
+(60 real changes made)
+
+. replace wpll = wpl9 if jobstst2 == 1 & jobst9 < length & length <= joben9 & joben9 ~=. & jobst9 ~=. 
+(0 real changes made)
+
+. 
+. /*雇用形態*/
+. gen typex = 0
+
+. replace typex = type1 if jobstst2 == 1 & jobst1 <= length & length <= joben1 & joben1 ~=. & jobst1 ~=.
+>  
+(158,099 real changes made, 288 to missing)
+
+. replace typex = type2 if jobstst2 == 1 & jobst2 < length & length <= joben2  & joben2 ~=. & jobst2 ~=.
+>  
+(69,414 real changes made, 77 to missing)
+
+. replace typex = type3 if jobstst2 == 1 & jobst3 < length & length <= joben3  & joben3 ~=. & jobst3 ~=.
+>  
+(36,564 real changes made, 223 to missing)
+
+. replace typex = type4 if jobstst2 == 1 & jobst4 < length & length <= joben4  & joben4 ~=. & jobst4 ~=.
+>  
+(15,834 real changes made, 119 to missing)
+
+. replace typex = type5 if jobstst2 == 1 & jobst5 < length & length <= joben5  & joben5 ~=. & jobst5 ~=.
+>  
+(6,229 real changes made, 21 to missing)
+
+. replace typex = type6 if jobstst2 == 1 & jobst6 < length & length <= joben6  & joben6 ~=. & jobst6 ~=.
+>  
+(2,267 real changes made, 42 to missing)
+
+. replace typex = type7 if jobstst2 == 1 & jobst7 < length & length <= joben7  & joben7 ~=. & jobst7 ~=.
+>  
+(635 real changes made)
+
+. replace typex = type8 if jobstst2 == 1 & jobst8 < length & length <= joben8  & joben8 ~=. & jobst8 ~=.
+>  
+(60 real changes made)
+
+. replace typex = type9 if jobstst2 == 1 & jobst9 < length & length <= joben9  & joben9 ~=. & jobst9 ~=.
+>  
+(0 real changes made)
+
+. 
+. gen type = 0
+
+. replace type = type1 if jobstst2 == 1 & jobst1 <= length & length <= joben1
+(158,099 real changes made, 288 to missing)
+
+. replace type = type2 if jobstst2 == 1 & jobst2 < length & length <= joben2
+(69,468 real changes made, 131 to missing)
+
+. replace type = type3 if jobstst2 == 1 & jobst3 < length & length <= joben3
+(36,564 real changes made, 223 to missing)
+
+. replace type = type4 if jobstst2 == 1 & jobst4 < length & length <= joben4
+(15,834 real changes made, 119 to missing)
+
+. replace type = type5 if jobstst2 == 1 & jobst5 < length & length <= joben5
+(6,229 real changes made, 21 to missing)
+
+. replace type = type6 if jobstst2 == 1 & jobst6 < length & length <= joben6
+(2,267 real changes made, 42 to missing)
+
+. replace type = type7 if jobstst2 == 1 & jobst7 < length & length <= joben7
+(635 real changes made)
+
+. replace type = type8 if jobstst2 == 1 & jobst8 < length & length <= joben8
+(60 real changes made)
+
+. replace type = type9 if jobstst2 == 1 & jobst9 < length & length <= joben9 
+(0 real changes made)
+
+. 
+. gen jobssm = 0
+
+. replace jobssm = jobssm1 if jobstst2 == 1 & jobst1 <= length & length <= joben1
+(158,099 real changes made, 507 to missing)
+
+. replace jobssm = jobssm2 if jobstst2 == 1 & jobst2 < length & length <= joben2
+(69,409 real changes made, 326 to missing)
+
+. replace jobssm = jobssm3 if jobstst2 == 1 & jobst3 < length & length <= joben3
+(36,569 real changes made, 239 to missing)
+
+. replace jobssm = jobssm4 if jobstst2 == 1 & jobst4 < length & length <= joben4
+(15,834 real changes made, 114 to missing)
+
+. replace jobssm = jobssm5 if jobstst2 == 1 & jobst5 < length & length <= joben5
+(6,229 real changes made, 21 to missing)
+
+. replace jobssm = jobssm6 if jobstst2 == 1 & jobst6 < length & length <= joben6
+(2,267 real changes made, 42 to missing)
+
+. replace jobssm = jobssm7 if jobstst2 == 1 & jobst7 < length & length <= joben7
+(635 real changes made)
+
+. replace jobssm = jobssm8 if jobstst2 == 1 & jobst8 < length & length <= joben8
+(60 real changes made)
+
+. replace jobssm = jobssm9 if jobstst2 == 1 & jobst9 < length & length <= joben9 
+(0 real changes made)
+
+.  
+. gen mrgstst = 0
+
+. recode mrgstst 0=1 if mrgst1 <= length & length <= mrgen1 
+(mrgstst: 216754 changes made)
+
+. recode mrgstst 0=1 if mrgst2 <= length & length <= mrgen2
+(mrgstst: 2049 changes made)
+
+. 
+. gen bch=bch1 if cbirth1 == length
+(478,047 missing values generated)
+
+. replace bch=bch2 if cbirth2 == length
+(1,155 real changes made, 1 to missing)
+
+. replace bch=bch3 if cbirth3 == length
+(351 real changes made, 2 to missing)
+
+. 
+. /*再コード1"専門管理"2"事務"3"販売"4"熟練"5"半非熟練"6"無職"*/
+. recode cc01leav 2=0 8=. 9=.
+(cc01leav: 369531 changes made)
+
+. recode cc02leav 2=0 8=. 9=.
+(cc02leav: 274651 changes made)
+
+. recode cc03leav 2=0 8=. 9=.
+(cc03leav: 87820 changes made)
+
+. gen ccleav=cc01leav
+(62,568 missing values generated)
+
+. replace ccleav=cc02leav if  cbirth2 == length 
+(65 real changes made, 24 to missing)
+
+. replace ccleav=cc03leav if  cbirth3 == length 
+(37 real changes made, 20 to missing)
+
+. gen cbex=.
+(479,703 missing values generated)
+
+. forvalues i=1/3{
+  2. replace cbex=`i' if cbirth`i' == length 
+  3. }
+(1,671 real changes made)
+(1,199 real changes made)
+(412 real changes made)
+
+. 
+. recode type (1/2=1) (3/5=2) (6/7=3) (0=4)
+(type: 474067 changes made)
+
+. recode type1 (1/2=1) (3/5=2) (6/7=3) (0=4)
+(type1: 475731 changes made)
+
+. recode szl (1/4=1) (5=2) (6=3) (7/9=4) (10/11=5) (12=6) (13=7) (88=.) (99=.) (0=10)
+(szl: 473331 changes made)
+
+. recode sz1 (1/4=1) (5=2) (6=3) (7/9=4) (10/11=5) (12=6) (13=7) (88=.) (99=.) (0=10)
+(sz1: 474237 changes made)
+
+. 
+. /*有業コード*/
+. gen ump = 0
+
+. recode ump 0=1 if szl ~= 10
+(ump: 288935 changes made)
+
+. 
+. /*育児休暇を取得した企業でどれくらい継続するのか*/
+. /*サンプルは第一子を出産した人*/
+. /*cbirth1のタイミングが含まれる職業*/
+. gen timest = .
+(479,703 missing values generated)
+
+. gen timeen = .
+(479,703 missing values generated)
+
+. forvalues i=1/9{
+  2. replace timest = jobst`i'  if jobst`i' < cbirth1 & cbirth1 < joben`i'
+  3. replace timeen = joben`i'  if jobst`i' < cbirth1 & cbirth1 < joben`i'
+  4. }
+(122,062 real changes made)
+(122,062 real changes made)
+(58,496 real changes made)
+(57,998 real changes made)
+(31,007 real changes made)
+(31,007 real changes made)
+(9,179 real changes made)
+(9,179 real changes made)
+(3,738 real changes made)
+(3,738 real changes made)
+(2,514 real changes made)
+(2,514 real changes made)
+(159 real changes made)
+(159 real changes made)
+(147 real changes made)
+(147 real changes made)
+(0 real changes made)
+(0 real changes made)
+
+. 
+. /*timeenは子どもを在職中に産んだ人に限定しているため、quitが意味するのは、子どもを在職中に産んだ人が仕
+> 事を辞めたかどうか*/
+. recode spedu .a=4
+(spedu: 22359 changes made)
+
+. recode ump 1=0 if timeen == . | timest == .
+(ump: 119840 changes made)
+
+. recode szl sz1 (.=7)
+(szl: 2109 changes made)
+(sz1: 3681 changes made)
+
+. drop if sex ==1
+(172,062 observations deleted)
+
+. drop if cc01leav ==.
+(2,949 observations deleted)
+
+. /*heckprobitのために在職前に子供を産んでやめた人を分析から除外しない。*/
+. /*gen lmonth = length - beginjob*/
+. recode jobssm* (1/2=1)(3=2)(4=3)(5/8=4)(9=.)
+(jobssm1: 230886 changes made)
+(jobssm2: 183606 changes made)
+(jobssm3: 113955 changes made)
+(jobssm4: 56295 changes made)
+(jobssm5: 26190 changes made)
+(jobssm6: 11262 changes made)
+(jobssm7: 2913 changes made)
+(jobssm8: 171 changes made)
+(jobssm9: 0 changes made)
+(jobssm: 114791 changes made)
+
+. save "JGSS_LCS0824.dta", replace
+file JGSS_LCS0824.dta saved
+
+. *file size: 759.9 MB
+. 
+end of do-file
+
+. *Adding variable/value labels
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Labels.do"
+
+. label variable cc01leav   "第一子育児休業取得"
+
+. label variable redu   "本人学歴"
+
+. label variable spedu   "配偶者学歴"
+
+. label variable jobssm   "本人出産時職業"
+
+. label variable jobssm1   "本人初職"
+
+. label variable type   "本人出産時従業上の地位"
+
+. label variable type1   "本人初職従業上の地位"
+
+. label variable sz1   "本人初職企業規模"
+
+. label variable szl   "本人出産時企業規模"
+
+. label variable tencat   "本人出産時勤続期間"
+
+. label variable pld   "本人出産時親同居"
+
+. label variable bch   "第一子出生コーホート"
+
+. 
+. label define reduc 1"本人学歴（ref: 中学・高校）" 2"短大・高専・専門" 3"四大以上", replace
+
+. label define speduc 1"本人学歴（ref: 中学・高校）" 2"短大・高専・専門" 3"四大以上" 4"不明", replace
+
+. label define ssm 0"本人職業（ref: 販売）"1"本人結婚時職（ref: 専門管理）"2"事務"3"販売"4"熟練・半非熟
+> 練"6"無職", replace
+
+. label define ssm1 0"本人職業（ref: 販売）"1"本人初職（ref: 専門管理）"2"事務"3"販売"4"熟練・半非熟練"6
+> "無職", replace
+
+. label define comp 1"出産時企業規模（ref: 1-29人）"2"30-99人"3"100-299人"4"300-1999人"5"2000人以上"6"官
+> 公庁"7"わからない"10"無職", replace
+
+. label define comp1 1"出産時企業規模（ref: 1-29人）"2"30-99人"3"100-299人"4"300-1999人"5"2000人以上"6"
+> 官公庁"7"わからない"10"無職", replace
+
+. label define stat 1"出産時従業上の地位（ref: 正規雇用）"2"非正規雇用"3"自営業"4"無職", replace
+
+. label define stat1 1"初職従業上の地位（ref: 正規雇用）"2"非正規雇用"3"自営業"4"無職", replace
+
+. label define parl 1"同居"0"出産時親同居（ref: 非同居）", replace
+
+. label define car  1"出産時勤続年数（ref: 1年以内）" 2"2-3年以内" 3"4-5年以内" 4"6-10年以内" 5"11年以上
+> ", replace
+
+. label define cor 1"出産コーホート（ref: 1986-1991）" 2"1992-1994" 3"1995-2001" 4"2002-2004" 5"2005-200
+> 9", replace
+
+. label define his 1"出産歴（ref: 1人目）"2"2人目"3"3人目", replace
+
+. label define cc 0"育児休暇取得有無（ref: 非取得）" 1"取得", replace
+
+. /*label define cc 0"非取得" 1"取得", replace*/
+. 
+. label values bch cor
+
+. label values tencat car 
+
+. label values redu reduc
+
+. label values spedu speduc
+
+. label values jobssm ssm
+
+. label values jobssm1 ssm1
+
+. label values szl comp
+
+. label values sz1 comp1
+
+. 
+. label values type stat
+
+. label values type1 stat1
+
+. label values pld parl
+
+. label values cbex his
+
+. label values bch cor
+
+. label values bch1 cor
+
+. label values cc01leav cc
+
+. 
+end of do-file
+
+. *Submit results
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Descriptive.do"
+
+. /*無子を分析から除外*/
+. bysort id: egen maxccnumttl = max(ccnumttl)
+
+. drop if maxccnumttl == 0
+(34,629 observations deleted)
+
+. gen quit = timeen <= length & length ~= 326 &  timeen ~= 0 
+
+. replace quit =. if timeen == . | timest == .
+(183,633 real changes made, 183,633 to missing)
+
+. drop if quit ==. 
+(183,633 observations deleted)
+
+. bysort id: gen sumquit = sum(quit)
+
+. drop if sumquit > 1
+(15,441 observations deleted)
+
+. 
+. drop if length < cbirth1+2
+(50,304 observations deleted)
+
+. gen lmonth = (length - cbirth1 - 2) + 1
+
+. 
+. /*drop if type1 == 3*/
+. keep if type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. & type ~=. & szl ~=. & pld ~=. & tenca
+> t ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & cc01leav ~=.
+(2,413 observations deleted)
+
+. 
+. local shortcut "lmonth==1 & type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. & type ~=. & szl ~
+> =. & pld ~=. & tencat ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & timeen ~= . & timest ~= ."
+
+. 
+. cd "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive/Column"
+/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive/Column
+
+. quietly estpost tabulate redu cc01leav if `shortcut'
+
+. quietly esttab . using desc1.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate spedu cc01leav if `shortcut'
+
+. quietly esttab . using desc2.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate bch1 cc01leav if `shortcut'
+
+. quietly esttab . using desc3.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate jobssm cc01leav if `shortcut'
+
+. quietly esttab . using desc4.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate type cc01leav if `shortcut'
+
+. quietly esttab . using desc5.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate szl cc01leav if `shortcut'
+
+. quietly esttab . using desc6.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate pld cc01leav if `shortcut'
+
+. quietly esttab . using desc7.csv, replace cell(colpct(fmt(2))) unstack noobs
+
+. cd "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive/Row"
+/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive/Row
+
+. quietly estpost tabulate redu cc01leav if `shortcut'
+
+. quietly esttab . using desc1.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate spedu cc01leav if `shortcut'
+
+. quietly esttab . using desc2.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate bch1 cc01leav if `shortcut'
+
+. quietly esttab . using desc3.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate jobssm cc01leav if `shortcut'
+
+. quietly esttab . using desc4.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate type cc01leav if `shortcut'
+
+. quietly esttab . using desc5.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate szl cc01leav if `shortcut'
+
+. quietly esttab . using desc6.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. quietly estpost tabulate pld cc01leav if `shortcut'
+
+. quietly esttab . using desc7.csv, replace cell(rowpct(fmt(2))) unstack noobs
+
+. 
+. tab  redu cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+                      |         取得
+             本人学歴 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+本人学歴（ref: 中学・ |     62.50      37.50 |    100.00 
+     短大・高専・専門 |     49.28      50.72 |    100.00 
+             四大以上 |     28.81      71.19 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(2) =  16.5932   Pr = 0.000
+
+. tab  spedu cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+                      |         取得
+           配偶者学歴 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+本人学歴（ref: 中学・ |     56.03      43.97 |    100.00 
+     短大・高専・専門 |     47.06      52.94 |    100.00 
+             四大以上 |     36.79      63.21 |    100.00 
+                 不明 |     85.00      15.00 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(3) =  19.0336   Pr = 0.000
+
+. tab  bch1 cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+                      |         取得
+                 bch1 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+出産コーホート（ref:  |     78.95      21.05 |    100.00 
+            1992-1994 |     71.43      28.57 |    100.00 
+            1995-2001 |     53.85      46.15 |    100.00 
+            2002-2004 |     31.11      68.89 |    100.00 
+            2005-2009 |     32.76      67.24 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(4) =  25.6482   Pr = 0.000
+
+. tab  jobssm cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+                      |         取得
+       本人出産時職業 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+本人結婚時職（ref: 専 |     27.84      72.16 |    100.00 
+                 事務 |     51.52      48.48 |    100.00 
+                 販売 |     76.60      23.40 |    100.00 
+       熟練・半非熟練 |     62.00      38.00 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(3) =  35.3036   Pr = 0.000
+
+. tab  type cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+       本人出産時従業 |         取得
+             上の地位 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+出産時従業上の地位（r |     40.09      59.91 |    100.00 
+           非正規雇用 |     81.82      18.18 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(1) =  35.6210   Pr = 0.000
+
+. tab  szl cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+       本人出産時企業 |         取得
+                 規模 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+出産時企業規模（ref:  |     67.57      32.43 |    100.00 
+              30-99人 |     44.12      55.88 |    100.00 
+            100-299人 |     53.85      46.15 |    100.00 
+           300-1999人 |     44.83      55.17 |    100.00 
+           2000人以上 |     48.28      51.72 |    100.00 
+               官公庁 |     23.08      76.92 |    100.00 
+           わからない |     70.00      30.00 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(6) =  28.6640   Pr = 0.000
+
+. tab  pld cc01leav if `shortcut',chi row nofreq
+
+                      |    第一子育児休業
+       本人出産時親同 |         取得
+                   居 |  育児休暇       取得 |     Total
+----------------------+----------------------+----------
+出産時親同居（ref: 非 |     50.56      49.44 |    100.00 
+                 同居 |     38.46      61.54 |    100.00 
+----------------------+----------------------+----------
+                Total |     49.49      50.51 |    100.00 
+
+          Pearson chi2(1) =   1.3878   Pr = 0.239
+
+. ttest tenure if `shortcut', by(cc01leav)
+
+Two-sample t test with equal variances
+------------------------------------------------------------------------------
+   Group |     Obs        Mean    Std. Err.   Std. Dev.   [95% Conf. Interval]
+---------+--------------------------------------------------------------------
+ 育児~無 |     145    47.01379    3.248931    39.12231    40.59204    53.43555
+    取得 |     148    81.39189    3.923351    47.72963    73.63843    89.14535
+---------+--------------------------------------------------------------------
+combined |     293    64.37884    2.738986    46.88389    58.98818     69.7695
+---------+--------------------------------------------------------------------
+    diff |            -34.3781    5.104224               -44.42398   -24.33222
+------------------------------------------------------------------------------
+    diff = mean(育児休暇取得有無) - mean(取得)                    t =  -6.7352
+Ho: diff = 0                                     degrees of freedom =      291
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.0000         Pr(|T| > |t|) = 0.0000          Pr(T > t) = 1.0000
+
+. 
+. cd "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive"
+/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Descriptive
+
+. quietly logit cc01leav i.redu  i.spedu i.bch1 i.jobssm  i.type  i.szl i.pld tenure if `shortcut', nolo
+> g noemptycells
+
+. est sto logit
+
+. quietly esttab logit using lcs_reg_logit.csv, se scalar(N ll aic r2_p) star(† 0.1 * 0.05 ** 0.01 *** 0
+> .001) b(3)  replace label  wide  noomitted title(Exploration: Including Cases after 2011)
+
+. 
+. 
+end of do-file
+
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/PSMatching.do"
+
+. /*1to1 matchを行う。その上で、マッチされたサンプル同士で比較*/
+. /*Nearest neibor within caliper 0.1 採用*/
+. set seed 1000
+
+. generate x=uniform()
+
+. sort x
+
+. 
+. psmatch2 cc01leav i.redu  i.spedu i.bch1 i.jobssm  i.type  i.szl i.pld tenure if lmonth==1 & type ~=3 
+> & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. & type ~=. & szl ~=. & pld ~=. & tencat ~=. & jobssm1 ~
+> =. & sz1 ~=. &  type1 ~=. & timeen ~= . & timest ~= ., logit caliper(0.1) noreplacement descending
+
+Logistic regression                             Number of obs     =        293
+                                                LR chi2(21)       =     121.54
+                                                Prob > chi2       =     0.0000
+Log likelihood = -142.30714                     Pseudo R2         =     0.2992
+
+-----------------------------------------------------------------------------------
+         cc01leav |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+------------------+----------------------------------------------------------------
+             redu |
+短大・高専・専門  |  -.1085322   .3962188    -0.27   0.784    -.8851068    .6680423
+        四大以上  |   .3421043   .5618458     0.61   0.543    -.7590931    1.443302
+                  |
+            spedu |
+短大・高専・専門  |  -.4560001   .4413093    -1.03   0.301     -1.32095    .4089503
+        四大以上  |   .2776252   .4019914     0.69   0.490    -.5102634    1.065514
+            不明  |  -1.323687   .7148652    -1.85   0.064    -2.724797    .0774227
+                  |
+             bch1 |
+       1992-1994  |  -.0626142   .8125294    -0.08   0.939    -1.655143    1.529914
+       1995-2001  |    .605159   .6863094     0.88   0.378    -.7399827    1.950301
+       2002-2004  |   1.497183     .78521     1.91   0.057    -.0418006    3.036166
+       2005-2009  |   1.266955   .7760544     1.63   0.103    -.2540838    2.787994
+                  |
+           jobssm |
+            事務  |  -.6756849    .392456    -1.72   0.085    -1.444885    .0935147
+            販売  |  -1.561637   .5361041    -2.91   0.004    -2.612382   -.5108924
+  熟練・半非熟練  |  -.8063111   .4866054    -1.66   0.098     -1.76004    .1474179
+                  |
+             type |
+      非正規雇用  |  -1.549443    .435097    -3.56   0.000    -2.402217   -.6966686
+                  |
+              szl |
+         30-99人  |   .9613699   .5350165     1.80   0.072    -.0872432    2.009983
+       100-299人  |  -.1487699   .5615056    -0.26   0.791    -1.249301    .9517609
+      300-1999人  |   .8696166   .4589821     1.89   0.058    -.0299718    1.769205
+      2000人以上  |   .8694027   .5364262     1.62   0.105    -.1819734    1.920779
+          官公庁  |    1.65561   .5514875     3.00   0.003     .5747141    2.736505
+      わからない  |   1.070379   .6828892     1.57   0.117     -.268059    2.408818
+                  |
+              pld |
+            同居  |   .4373921    .550352     0.79   0.427     -.641278    1.516062
+           tenure |   .0113067   .0038191     2.96   0.003     .0038214    .0187921
+            _cons |  -1.212955   .8413019    -1.44   0.149    -2.861876    .4359663
+-----------------------------------------------------------------------------------
+
+. pstest
+
+------------------------------------------------------------------------------
+                        |       Mean               |     t-test    |  V(T)/
+Variable                | Treated Control    %bias |    t    p>|t| |  V(C)
+------------------------+--------------------------+---------------+----------
+2.redu                  | .48718   .57692    -17.9 |  -1.12  0.264 |     .
+3.redu                  | .19231   .15385      9.8 |   0.63  0.529 |     .
+2.spedu                 | .17949   .20513     -6.7 |  -0.40  0.687 |     .
+3.spedu                 | .33333   .29487      8.1 |   0.51  0.608 |     .
+4.spedu                 | .03846   .05128     -5.1 |  -0.38  0.701 |     .
+2.bch1                  | .07692   .08974     -4.4 |  -0.29  0.774 |     .
+3.bch1                  | .48718   .53846    -10.3 |  -0.64  0.525 |     .
+4.bch1                  | .19231   .15385     10.8 |   0.63  0.529 |     .
+5.bch1                  | .19231   .17949      3.3 |   0.20  0.838 |     .
+2.jobssm                | .41026   .38462      5.4 |   0.33  0.745 |     .
+3.jobssm                | .11538   .14103     -7.2 |  -0.48  0.635 |     .
+4.jobssm                | .12821   .15385     -6.8 |  -0.46  0.648 |     .
+2.type                  | .15385   .21795    -16.3 |  -1.03  0.307 |     .
+2.szl                   | .10256   .12821     -8.0 |  -0.50  0.619 |     .
+3.szl                   | .10256   .07692      9.0 |   0.56  0.578 |     .
+4.szl                   | .24359   .23077      3.2 |   0.19  0.852 |     .
+5.szl                   | .12821   .14103     -4.3 |  -0.23  0.816 |     .
+6.szl                   | .14103   .08974     13.8 |   1.00  0.319 |     .
+7.szl                   |  .0641   .07692     -5.1 |  -0.31  0.756 |     .
+1.pld                   | .10256   .08974      4.5 |   0.27  0.788 |     .
+tenure                  | 68.179    61.91     14.4 |   0.88  0.383 |  1.08
+------------------------------------------------------------------------------
+* if variance ratio outside [0.64; 1.57]
+
+----------------------------------------------------------------------
+Ps R2   LR chi2   p>chi2   MeanBias   MedBias      B       R     %Var 
+----------------------------------------------------------------------
+0.029      6.17    0.999      8.3       7.2      39.7*    1.22      0
+----------------------------------------------------------------------
+* if B>25%, R outside [0.5; 2]
+
+. sort _id 
+
+. g match=iduse[_n1]
+(18,194 missing values generated)
+
+. g treat=iduse if _nn==1
+(18,194 missing values generated)
+
+. list id match treat if treat ~=.
+
+       +----------------------+
+       |   id   match   treat |
+       |----------------------|
+  146. |  681     402     681 |
+  147. | 2604    2491    2604 |
+  148. |  290    2719     290 |
+  149. |  364      38     364 |
+  150. | 1198    1326    1198 |
+       |----------------------|
+  174. | 1374     118    1374 |
+  182. |   46    1234      46 |
+  188. |  520    2000     520 |
+  196. | 1499    1140    1499 |
+  197. |  381    2617     381 |
+       |----------------------|
+  203. |  906    2173     906 |
+  207. |  335     274     335 |
+  211. |  870    2246     870 |
+  217. |  878     293     878 |
+  219. | 1661    1675    1661 |
+       |----------------------|
+  220. | 2172     383    2172 |
+  221. |  967    1179     967 |
+  222. | 2328     521    2328 |
+  223. |  729     624     729 |
+  224. |  105    1456     105 |
+       |----------------------|
+  225. | 2477    1792    2477 |
+  226. |  951    2660     951 |
+  234. |  227    2163     227 |
+  235. | 1722     297    1722 |
+  236. | 1648     296    1648 |
+       |----------------------|
+  237. |  279     798     279 |
+  238. |    9      45       9 |
+  241. | 1984     145    1984 |
+  244. | 2186    2382    2186 |
+  245. |  911    1511     911 |
+       |----------------------|
+  246. |  758    1929     758 |
+  247. |  281    1576     281 |
+  248. | 2423     700    2423 |
+  249. |  849     582     849 |
+  250. |  561    2311     561 |
+       |----------------------|
+  251. | 1487    2075    1487 |
+  252. | 2259    1285    2259 |
+  253. |  664    1668     664 |
+  254. | 1237    1207    1237 |
+  255. | 1476    1829    1476 |
+       |----------------------|
+  256. | 1543    2167    1543 |
+  257. |   81    2686      81 |
+  258. | 1750    1502    1750 |
+  259. |  632    1889     632 |
+  260. | 1399     210    1399 |
+       |----------------------|
+  261. | 1209    2466    1209 |
+  262. |  851    2089     851 |
+  263. | 1365    2265    1365 |
+  264. | 1250    1509    1250 |
+  265. |  945    2608     945 |
+       |----------------------|
+  266. |  772     233     772 |
+  267. |  167    1049     167 |
+  268. |  146     825     146 |
+  269. | 1359    1704    1359 |
+  270. | 2188    1909    2188 |
+       |----------------------|
+  271. |  503    2554     503 |
+  272. |  685    2019     685 |
+  273. | 1290    1187    1290 |
+  274. | 1265    2628    1265 |
+  275. |  181     243     181 |
+       |----------------------|
+  276. | 2178    1363    2178 |
+  277. | 2016     333    2016 |
+  278. |  358     594     358 |
+  279. | 1192    2637    1192 |
+  280. | 1241    2445    1241 |
+       |----------------------|
+  281. | 1306    1238    1306 |
+  282. | 2705     734    2705 |
+  283. | 1158    2207    1158 |
+  284. |  215    1698     215 |
+  285. |  143    1253     143 |
+       |----------------------|
+  286. |  183     182     183 |
+  287. | 1279    2025    1279 |
+  288. |  207    1589     207 |
+  289. | 1893    2716    1893 |
+  290. | 2177    2374    2177 |
+       |----------------------|
+  291. |   43    1873      43 |
+  292. | 1541     440    1541 |
+  293. | 2518    1818    2518 |
+       +----------------------+
+
+. summarize match treat
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       match |         78    1454.115    838.3489         38       2719
+       treat |         78    1105.526    747.8203          9       2705
+
+. 
+. tab match
+
+      match |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         38 |          1        1.28        1.28
+         45 |          1        1.28        2.56
+        118 |          1        1.28        3.85
+        145 |          1        1.28        5.13
+        182 |          1        1.28        6.41
+        210 |          1        1.28        7.69
+        233 |          1        1.28        8.97
+        243 |          1        1.28       10.26
+        274 |          1        1.28       11.54
+        293 |          1        1.28       12.82
+        296 |          1        1.28       14.10
+        297 |          1        1.28       15.38
+        333 |          1        1.28       16.67
+        383 |          1        1.28       17.95
+        402 |          1        1.28       19.23
+        440 |          1        1.28       20.51
+        521 |          1        1.28       21.79
+        582 |          1        1.28       23.08
+        594 |          1        1.28       24.36
+        624 |          1        1.28       25.64
+        700 |          1        1.28       26.92
+        734 |          1        1.28       28.21
+        798 |          1        1.28       29.49
+        825 |          1        1.28       30.77
+       1049 |          1        1.28       32.05
+       1140 |          1        1.28       33.33
+       1179 |          1        1.28       34.62
+       1187 |          1        1.28       35.90
+       1207 |          1        1.28       37.18
+       1234 |          1        1.28       38.46
+       1238 |          1        1.28       39.74
+       1253 |          1        1.28       41.03
+       1285 |          1        1.28       42.31
+       1326 |          1        1.28       43.59
+       1363 |          1        1.28       44.87
+       1456 |          1        1.28       46.15
+       1502 |          1        1.28       47.44
+       1509 |          1        1.28       48.72
+       1511 |          1        1.28       50.00
+       1576 |          1        1.28       51.28
+       1589 |          1        1.28       52.56
+       1668 |          1        1.28       53.85
+       1675 |          1        1.28       55.13
+       1698 |          1        1.28       56.41
+       1704 |          1        1.28       57.69
+       1792 |          1        1.28       58.97
+       1818 |          1        1.28       60.26
+       1829 |          1        1.28       61.54
+       1873 |          1        1.28       62.82
+       1889 |          1        1.28       64.10
+       1909 |          1        1.28       65.38
+       1929 |          1        1.28       66.67
+       2000 |          1        1.28       67.95
+       2019 |          1        1.28       69.23
+       2025 |          1        1.28       70.51
+       2075 |          1        1.28       71.79
+       2089 |          1        1.28       73.08
+       2163 |          1        1.28       74.36
+       2167 |          1        1.28       75.64
+       2173 |          1        1.28       76.92
+       2207 |          1        1.28       78.21
+       2246 |          1        1.28       79.49
+       2265 |          1        1.28       80.77
+       2311 |          1        1.28       82.05
+       2374 |          1        1.28       83.33
+       2382 |          1        1.28       84.62
+       2445 |          1        1.28       85.90
+       2466 |          1        1.28       87.18
+       2491 |          1        1.28       88.46
+       2554 |          1        1.28       89.74
+       2608 |          1        1.28       91.03
+       2617 |          1        1.28       92.31
+       2628 |          1        1.28       93.59
+       2637 |          1        1.28       94.87
+       2660 |          1        1.28       96.15
+       2686 |          1        1.28       97.44
+       2716 |          1        1.28       98.72
+       2719 |          1        1.28      100.00
+------------+-----------------------------------
+      Total |         78      100.00
+
+. /*controll特定*/
+. g cont =.   
+(18,272 missing values generated)
+
+. replace cont=iduse if iduse==   38
+(85 real changes made)
+
+. replace cont=iduse if iduse==   45
+(135 real changes made)
+
+. replace cont=iduse if iduse==   118
+(4 real changes made)
+
+. replace cont=iduse if iduse==   145
+(142 real changes made)
+
+. replace cont=iduse if iduse==   182
+(18 real changes made)
+
+. replace cont=iduse if iduse==   210
+(78 real changes made)
+
+. replace cont=iduse if iduse==   233
+(12 real changes made)
+
+. replace cont=iduse if iduse==   243
+(6 real changes made)
+
+. replace cont=iduse if iduse==   274
+(132 real changes made)
+
+. replace cont=iduse if iduse==   293
+(111 real changes made)
+
+. replace cont=iduse if iduse==   296
+(23 real changes made)
+
+. replace cont=iduse if iduse==   297
+(1 real change made)
+
+. replace cont=iduse if iduse==   333
+(34 real changes made)
+
+. replace cont=iduse if iduse==   383
+(36 real changes made)
+
+. replace cont=iduse if iduse==   402
+(63 real changes made)
+
+. replace cont=iduse if iduse==   440
+(5 real changes made)
+
+. replace cont=iduse if iduse==   521
+(163 real changes made)
+
+. replace cont=iduse if iduse==   582
+(7 real changes made)
+
+. replace cont=iduse if iduse==   594
+(50 real changes made)
+
+. replace cont=iduse if iduse==   624
+(4 real changes made)
+
+. replace cont=iduse if iduse==   700
+(2 real changes made)
+
+. replace cont=iduse if iduse==   734
+(16 real changes made)
+
+. replace cont=iduse if iduse==   798
+(8 real changes made)
+
+. replace cont=iduse if iduse==   825
+(30 real changes made)
+
+. replace cont=iduse if iduse==   1049
+(15 real changes made)
+
+. replace cont=iduse if iduse==   1140
+(10 real changes made)
+
+. replace cont=iduse if iduse==   1179
+(105 real changes made)
+
+. replace cont=iduse if iduse==   1187
+(186 real changes made)
+
+. replace cont=iduse if iduse==   1207
+(115 real changes made)
+
+. replace cont=iduse if iduse==   1234
+(12 real changes made)
+
+. replace cont=iduse if iduse==   1238
+(91 real changes made)
+
+. replace cont=iduse if iduse==   1253
+(112 real changes made)
+
+. replace cont=iduse if iduse==   1285
+(116 real changes made)
+
+. replace cont=iduse if iduse==   1326
+(1 real change made)
+
+. replace cont=iduse if iduse==   1363
+(165 real changes made)
+
+. replace cont=iduse if iduse==   1456
+(1 real change made)
+
+. replace cont=iduse if iduse==   1502
+(14 real changes made)
+
+. replace cont=iduse if iduse==   1509
+(109 real changes made)
+
+. replace cont=iduse if iduse==   1511
+(11 real changes made)
+
+. replace cont=iduse if iduse==   1576
+(18 real changes made)
+
+. replace cont=iduse if iduse==   1589
+(138 real changes made)
+
+. replace cont=iduse if iduse==   1668
+(3 real changes made)
+
+. replace cont=iduse if iduse==   1675
+(21 real changes made)
+
+. replace cont=iduse if iduse==   1698
+(4 real changes made)
+
+. replace cont=iduse if iduse==   1704
+(2 real changes made)
+
+. replace cont=iduse if iduse==   1792
+(110 real changes made)
+
+. replace cont=iduse if iduse==   1818
+(1 real change made)
+
+. replace cont=iduse if iduse==   1829
+(188 real changes made)
+
+. replace cont=iduse if iduse==   1873
+(95 real changes made)
+
+. replace cont=iduse if iduse==   1889
+(8 real changes made)
+
+. replace cont=iduse if iduse==   1909
+(7 real changes made)
+
+. replace cont=iduse if iduse==   1929
+(8 real changes made)
+
+. replace cont=iduse if iduse==   2000
+(8 real changes made)
+
+. replace cont=iduse if iduse==   2019
+(8 real changes made)
+
+. replace cont=iduse if iduse==   2025
+(13 real changes made)
+
+. replace cont=iduse if iduse==   2075
+(105 real changes made)
+
+. replace cont=iduse if iduse==   2089
+(48 real changes made)
+
+. replace cont=iduse if iduse==   2163
+(5 real changes made)
+
+. replace cont=iduse if iduse==   2167
+(25 real changes made)
+
+. replace cont=iduse if iduse==   2173
+(17 real changes made)
+
+. replace cont=iduse if iduse==   2207
+(1 real change made)
+
+. replace cont=iduse if iduse==   2246
+(118 real changes made)
+
+. replace cont=iduse if iduse==   2265
+(28 real changes made)
+
+. replace cont=iduse if iduse==   2311
+(170 real changes made)
+
+. replace cont=iduse if iduse==   2374
+(58 real changes made)
+
+. replace cont=iduse if iduse==   2382
+(20 real changes made)
+
+. replace cont=iduse if iduse==   2445
+(103 real changes made)
+
+. replace cont=iduse if iduse==   2466
+(1 real change made)
+
+. replace cont=iduse if iduse==   2491
+(51 real changes made)
+
+. replace cont=iduse if iduse==   2554
+(84 real changes made)
+
+. replace cont=iduse if iduse==   2608
+(42 real changes made)
+
+. replace cont=iduse if iduse==   2617
+(44 real changes made)
+
+. replace cont=iduse if iduse==   2628
+(4 real changes made)
+
+. replace cont=iduse if iduse==   2637
+(89 real changes made)
+
+. replace cont=iduse if iduse==   2660
+(102 real changes made)
+
+. replace cont=iduse if iduse==   2686
+(17 real changes made)
+
+. replace cont=iduse if iduse==   2716
+(128 real changes made)
+
+. replace cont=iduse if iduse==   2719
+(20 real changes made)
+
+. 
+. bysort iduse: egen treated = max(treat)
+(13080 missing values generated)
+
+. /*1/4SDはPSによるが上のspecificationだと0.073641*/
+. 
+. gen group=.
+(18,272 missing values generated)
+
+. replace group = 1 if treated ~=.
+(5,192 real changes made)
+
+. replace group = 0 if cont ~=.
+(4,140 real changes made)
+
+. 
+end of do-file
+
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Bivariate.do"
+
+. cd "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Bivariate"
+/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Bivariate
+
+. stset lmonth if lmonth < 121, id(id) failure(quit==1)
+
+                id:  id
+     failure event:  quit == 1
+obs. time interval:  (lmonth[_n-1], lmonth]
+ exit on or before:  failure
+            if exp:  lmonth < 121
+
+------------------------------------------------------------------------------
+     18,272  total observations
+      2,126  ignored at outset because of -if <exp>-
+------------------------------------------------------------------------------
+     16,146  observations remaining, representing
+        293  subjects
+        133  failures in single-failure-per-subject data
+     16,146  total analysis time at risk and under observation
+                                                at risk from t =         0
+                                     earliest observed entry t =         0
+                                          last observed exit t =       120
+
+. qui sts graph if lmonth < 121, by(cc01leav) ciopts(cc01leav) level(95) title("A.調整前（N=293）") xtit
+> le("勤続月数")  legend(order(2 1) label(1 "非取得") label(2 "取得")) saving(lcsobs.gph,replace)
+
+. qui sts graph if lmonth < 121, by(group) title("B.調整後（N=156）") xtitle("勤続月数")  legend(order(2
+>  1) label(1 "非取得") label(2 "取得")) saving(lcsprop.gph,replace)
+
+. qui graph use lcsobs.gph
+(note:  alignstroke foreground not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke background not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke plotregion not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke dotmark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  alignstroke p2mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke tick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke major_grid not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke minortick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke axisline not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+
+. qui graph use lcsprop.gph
+(note:  alignstroke foreground not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke background not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke plotregion not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke dotmark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  alignstroke p2mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke tick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke major_grid not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke minortick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke axisline not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+
+. graph combine lcsobs.gph lcsprop.gph,saving(Figure2.gph, replace)
+(note:  clockdir by_legend_position not found in scheme, default attributes used)
+(note:  clockdir by_legend_position not found in scheme, default attributes used)
+(note:  alignstroke foreground not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke background not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke plotregion not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke dotmark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  alignstroke p2mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke tick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke major_grid not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke minortick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke axisline not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke foreground not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke background not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke plotregion not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p1other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke dotmark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  anglestyle symbol not found in scheme, default attributes used)
+(note:  alignstroke p2mark not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2lineplot not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke p2other not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke tick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke major_grid not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke minortick not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(note:  alignstroke axisline not found in scheme, default attributes used)
+(note:  alignstroke not found in scheme, default attributes used)
+(file Figure2.gph saved)
+
+. sts list if group ~=., by(cc01leav) compare at (0 1 to 120)
+
+         failure _d:  quit == 1
+   analysis time _t:  lmonth
+                 id:  id
+
+                 Survivor Function
+cc01leav       育児休暇       取得
+----------------------------------
+time       0     1.0000     1.0000
+           1     0.9231     1.0000
+           2     0.8974     0.9870
+           3     0.8846     0.9870
+           4     0.8333     0.9870
+           5     0.8077     0.9870
+           6     0.7949     0.9739
+           7     0.7692     0.9475
+           8     0.7179     0.9475
+           9     0.7179     0.9344
+          10     0.7049     0.9344
+          11     0.6918     0.9212
+          12     0.6657     0.9079
+          13     0.6527     0.8945
+          14     0.6396     0.8812
+          15     0.6266     0.8812
+          16     0.6135     0.8678
+          17     0.6005     0.8545
+          18     0.5738     0.8545
+          19     0.5738     0.8409
+          20     0.5471     0.8273
+          21     0.5337     0.8138
+          22     0.5337     0.8138
+          23     0.5337     0.8000
+          24     0.5337     0.8000
+          25     0.5337     0.8000
+          26     0.5337     0.8000
+          27     0.5337     0.8000
+          28     0.5337     0.8000
+          29     0.5337     0.8000
+          30     0.5193     0.7857
+          31     0.5193     0.7857
+          32     0.5193     0.7857
+          33     0.5193     0.7714
+          34     0.5049     0.7714
+          35     0.5049     0.7571
+          36     0.5049     0.7428
+          37     0.5049     0.7283
+          38     0.5049     0.7137
+          39     0.5049     0.7137
+          40     0.5049     0.7137
+          41     0.5049     0.7137
+          42     0.4900     0.7137
+          43     0.4900     0.7137
+          44     0.4900     0.7137
+          45     0.4900     0.7137
+          46     0.4900     0.7137
+          47     0.4900     0.7137
+          48     0.4747     0.7137
+          49     0.4747     0.6971
+          50     0.4747     0.6971
+          51     0.4747     0.6971
+          52     0.4747     0.6631
+          53     0.4747     0.6631
+          54     0.4747     0.6631
+          55     0.4747     0.6461
+          56     0.4747     0.6461
+          57     0.4747     0.6291
+          58     0.4584     0.6291
+          59     0.4584     0.6291
+          60     0.4584     0.6291
+          61     0.4584     0.6116
+          62     0.4584     0.6116
+          63     0.4584     0.5936
+          64     0.4584     0.5936
+          65     0.4584     0.5936
+          66     0.4584     0.5936
+          67     0.4584     0.5936
+          68     0.4584     0.5936
+          69     0.4584     0.5936
+          70     0.4584     0.5936
+          71     0.4584     0.5936
+          72     0.4584     0.5936
+          73     0.4584     0.5936
+          74     0.4584     0.5936
+          75     0.4584     0.5936
+          76     0.4584     0.5936
+          77     0.4584     0.5936
+          78     0.4584     0.5936
+          79     0.4584     0.5936
+          80     0.4584     0.5936
+          81     0.4584     0.5708
+          82     0.4584     0.5708
+          83     0.4584     0.5708
+          84     0.4407     0.5708
+          85     0.4407     0.5708
+          86     0.4407     0.5708
+          87     0.4407     0.5708
+          88     0.4407     0.5708
+          89     0.4224     0.5449
+          90     0.4224     0.5449
+          91     0.4224     0.5449
+          92     0.4224     0.5449
+          93     0.4224     0.5449
+          94     0.4224     0.5449
+          95     0.4224     0.5449
+          96     0.4224     0.5449
+          97     0.4224     0.5449
+          98     0.4224     0.5449
+          99     0.4224     0.5449
+         100     0.4224     0.5449
+         101     0.4224     0.5449
+         102     0.4224     0.5449
+         103     0.4013     0.5449
+         104     0.4013     0.5449
+         105     0.4013     0.5449
+         106     0.4013     0.5449
+         107     0.4013     0.5449
+         108     0.4013     0.5449
+         109     0.4013     0.5449
+         110     0.4013     0.5449
+         111     0.4013     0.5449
+         112     0.4013     0.5449
+         113     0.4013     0.5449
+         114     0.4013     0.5449
+         115     0.4013     0.5449
+         116     0.4013     0.5449
+         117     0.4013     0.5449
+         118     0.3648     0.5449
+         119     0.3648     0.5449
+         120     0.3648     0.5449
+----------------------------------
+
+. sts list , by(cc01leav) compare at (0 1 to 120)
+
+         failure _d:  quit == 1
+   analysis time _t:  lmonth
+                 id:  id
+
+                 Survivor Function
+cc01leav       育児休暇       取得
+----------------------------------
+time       0     1.0000     1.0000
+           1     0.9310     1.0000
+           2     0.9103     0.9932
+           3     0.8828     0.9863
+           4     0.8414     0.9863
+           5     0.8069     0.9863
+           6     0.7931     0.9794
+           7     0.7586     0.9652
+           8     0.7103     0.9510
+           9     0.6964     0.9438
+          10     0.6825     0.9367
+          11     0.6686     0.9221
+          12     0.6477     0.9148
+          13     0.6407     0.9075
+          14     0.6337     0.9002
+          15     0.6268     0.9002
+          16     0.6198     0.8929
+          17     0.6059     0.8782
+          18     0.5847     0.8635
+          19     0.5777     0.8561
+          20     0.5636     0.8413
+          21     0.5495     0.8339
+          22     0.5284     0.8339
+          23     0.5284     0.8262
+          24     0.5212     0.8262
+          25     0.5212     0.8185
+          26     0.5212     0.8185
+          27     0.5212     0.8185
+          28     0.5212     0.8185
+          29     0.5212     0.8185
+          30     0.5139     0.8104
+          31     0.4992     0.8104
+          32     0.4992     0.8104
+          33     0.4992     0.8023
+          34     0.4919     0.8023
+          35     0.4919     0.7859
+          36     0.4919     0.7777
+          37     0.4919     0.7694
+          38     0.4919     0.7610
+          39     0.4919     0.7610
+          40     0.4844     0.7610
+          41     0.4844     0.7610
+          42     0.4770     0.7610
+          43     0.4770     0.7610
+          44     0.4770     0.7610
+          45     0.4770     0.7610
+          46     0.4770     0.7610
+          47     0.4770     0.7610
+          48     0.4616     0.7610
+          49     0.4616     0.7515
+          50     0.4616     0.7515
+          51     0.4616     0.7417
+          52     0.4616     0.7220
+          53     0.4616     0.7220
+          54     0.4616     0.7220
+          55     0.4616     0.7117
+          56     0.4616     0.7117
+          57     0.4616     0.6910
+          58     0.4533     0.6910
+          59     0.4533     0.6910
+          60     0.4533     0.6910
+          61     0.4533     0.6806
+          62     0.4533     0.6806
+          63     0.4533     0.6590
+          64     0.4533     0.6590
+          65     0.4533     0.6590
+          66     0.4533     0.6590
+          67     0.4533     0.6590
+          68     0.4533     0.6478
+          69     0.4533     0.6478
+          70     0.4533     0.6478
+          71     0.4533     0.6478
+          72     0.4533     0.6478
+          73     0.4533     0.6478
+          74     0.4533     0.6478
+          75     0.4533     0.6478
+          76     0.4533     0.6478
+          77     0.4533     0.6478
+          78     0.4449     0.6478
+          79     0.4449     0.6478
+          80     0.4449     0.6478
+          81     0.4449     0.6353
+          82     0.4449     0.6353
+          83     0.4278     0.6353
+          84     0.4193     0.6353
+          85     0.4193     0.6353
+          86     0.4193     0.6353
+          87     0.4193     0.6353
+          88     0.4105     0.6353
+          89     0.4018     0.6202
+          90     0.4018     0.6202
+          91     0.4018     0.6202
+          92     0.4018     0.6202
+          93     0.4018     0.6202
+          94     0.4018     0.6202
+          95     0.4018     0.6202
+          96     0.4018     0.6202
+          97     0.3922     0.6202
+          98     0.3922     0.6202
+          99     0.3922     0.6202
+         100     0.3922     0.6202
+         101     0.3922     0.6202
+         102     0.3922     0.6202
+         103     0.3822     0.6202
+         104     0.3822     0.6202
+         105     0.3822     0.6202
+         106     0.3822     0.6202
+         107     0.3822     0.6202
+         108     0.3822     0.6202
+         109     0.3822     0.6202
+         110     0.3822     0.6202
+         111     0.3822     0.6202
+         112     0.3822     0.6202
+         113     0.3822     0.6202
+         114     0.3822     0.5988
+         115     0.3822     0.5988
+         116     0.3822     0.5988
+         117     0.3822     0.5988
+         118     0.3685     0.5988
+         119     0.3685     0.5988
+         120     0.3685     0.5988
+----------------------------------
+
+. 
+end of do-file
+
+. do "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Multivariate.do"
+
+. cd "/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Multivariate"
+/Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/Results/Multivariate
+
+. gen lmonth2=lmonth*lmonth/100
+
+. gen tenurex=tenure/12
+
+. *Regressions
+. eststo: quietly logit quit c.lmonth##i.cc01leav c.lmonth2##i.cc01leav i.redu i.spedu i.bch1 i.jobssm i
+> .type i.szl i.pld tenurex  if lmonth <= 120 & type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. 
+> & type ~=. & szl ~=. & pld ~=. & tencat ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & cc01leav ~=. , nolo
+> g noemptycells
+(est62 stored)
+
+. est sto expl1
+
+. eststo: quietly logit quit c.lmonth##i.cc01leav c.lmonth2##i.cc01leav i.redu i.spedu i.bch1 i.jobssm i
+> .type i.szl i.pld tenurex  if lmonth <= 120 & type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. 
+> & type ~=. & szl ~=. & pld ~=. & tencat ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & cc01leav ~=. & grou
+> p ~=., nolog noemptycells
+(est63 stored)
+
+. est sto expl2
+
+. quietly esttab expl1 expl2 using lcs_reg_120.csv, se scalar(N ll aic r2_p) star(† 0.1 * 0.05 ** 0.01 *
+> ** 0.001) b(3)  replace label  wide  noomitted title(Exploration: Including Cases after 2011)
+
+. *Margins
+. quietly logit quit c.lmonth##i.cc01leav c.lmonth##c.lmonth##i.cc01leav i.redu i.spedu i.bch1 i.jobssm 
+> i.type i.szl i.pld tenure  if lmonth <= 120 & type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. 
+> & type ~=. & szl ~=. & pld ~=. & tencat ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & cc01leav ~=. , nolo
+> g noemptycells
+
+. quietly estpost margins cc01leav, at(lmonth=(1(1)120))  
+
+. quietly esttab . using margins_obs120.csv, replace r(b) label wide nostar
+
+. quietly logit quit c.lmonth##i.cc01leav c.lmonth##c.lmonth##i.cc01leav i.redu i.spedu i.bch1 i.jobssm 
+> i.type i.szl i.pld tenure  if lmonth <= 120 & type ~=3 & redu ~=. & spedu ~=. & bch1 ~=. & jobssm ~=. 
+> & type ~=. & szl ~=. & pld ~=. & tencat ~=. & jobssm1 ~=. & sz1 ~=. &  type1 ~=. & cc01leav ~=. & grou
+> p ~=., nolog noemptycells
+
+. quietly estpost margins cc01leav, at(lmonth=(1(1)120))  
+
+. quietly esttab . using margins_prop120.csv, replace r(b) label wide nostar
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/fumiyau/Documents/GitHub/JGSSLCS-ChildcareUse/ChildcareUse-Replication30Sep2018.log
+  log type:  text
+ closed on:  30 Sep 2018, 23:24:09
+--------------------------------------------------------------------------------------------------------
