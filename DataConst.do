@@ -1,4 +1,4 @@
-use "/Users/fumiyau/Desktop/デスクトップ/JGSS_LCS_Submission/Data/JGSS_LCS.dta", clear
+use "/Users/fumiyau/Desktop/JGSS_LCS_Submission/Data/JGSS_LCS.dta", clear
 /*出生年は1966年から1980年*/
 /* reshape用データ加工, Difine id, age, sex */
 gen id=_n
@@ -77,8 +77,6 @@ recode pastdiv 2=0
 gen bripreg=0
 recode bripreg 0=. if ccnumttl==0 | ccnumttl==.
 recode bripreg 0=1 if cbirth1< mrgst1+9 & mrgst1~=. & cbirth1~=.
-/*1ケースしかいないが再婚後の婚前妊娠もカウントするかも*/
-/*recode bripreg 0=1 if cbirth1 < mrgst2+9 & cbirth1 > mrgen1 & mrgst2~=. & cbirth1~=. & mrgen1 ~=.*/
 
 gen ccnum1 = ccnumttl
 recode ccnum1 1/7=1
@@ -88,7 +86,6 @@ recode ccnum2 0/1=0 2/7=1
 
 gen ccnum3 = ccnumttl
 recode ccnum3 0/2=0 3/7=1
-
 
 /* 学歴（1中学卒 2高校卒 3その他（専門など）4短大卒  5大学以上*/
 gen redu = 0
@@ -119,7 +116,6 @@ gen cnum=ccnumttl
 recode cnum (4/7=4)
 
 drop if marriage == 3
-
 
 /*職種（職業→SSM8分類）*/
 /* SSM 8 classification (including no-job) */
